@@ -34,6 +34,11 @@ func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	// validate
+	if jsonBody.Message == "" {
+		http.Error(w, "message is required", http.StatusBadRequest)
+		return
+	}
 
 	// send message to slack (#message-from-mewmew)
 	webhook_url := os.Getenv("WEBHOOK_URL_MESSAGE_FROM_MEWMEW")
