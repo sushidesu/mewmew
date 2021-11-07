@@ -19,6 +19,12 @@ func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 	godotenv.Load()
 	fmt.Println("called: /send-message")
 
+	// allow CORS
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	if r.Method != "POST" {
 		http.Error(w, "invalid method", http.StatusBadRequest)
 		return
