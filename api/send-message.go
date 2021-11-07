@@ -4,15 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
 )
-
-type sendMessageResponse struct {
-	Message string `json:"message"`
-}
 
 func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 	godotenv.Load()
@@ -36,7 +33,6 @@ func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	// send message to slack (#message-from-mewmew)
 	webhook_url := os.Getenv("WEBHOOK_URL_MESSAGE_FROM_MEWMEW")
-	fmt.Println(webhook_url)
 
 	// build message body
 	body, err := json.Marshal(jsonBody)
@@ -57,14 +53,19 @@ func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send request
-	res, err := http.NewRequest("POST", webhook_url, bytes.NewBuffer(message))
+	res, err := http.Post(webhook_url, "application/json", bytes.NewBuffer(message))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	defer res.Body.Close()
 
-	json.NewEncoder(w).Encode(sendMessageResponse{
-		Message: "ok",
-	})
+	// response from slack
+	body, err = ioutil.ReadAll(res.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(body)
 }
