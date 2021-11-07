@@ -3,7 +3,6 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
-	"log"
 	"net/http"
 	"os"
 
@@ -15,10 +14,7 @@ type sendMessageResponse struct {
 }
 
 func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+	godotenv.Load()
 
 	if r.Method != "POST" {
 		http.Error(w, "invalid method", http.StatusBadRequest)
@@ -30,7 +26,7 @@ func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var jsonBody map[string]interface{}
-	err = json.NewDecoder(r.Body).Decode(&jsonBody)
+	err := json.NewDecoder(r.Body).Decode(&jsonBody)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
