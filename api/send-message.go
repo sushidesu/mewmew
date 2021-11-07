@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -15,6 +16,7 @@ type sendMessageResponse struct {
 
 func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 	godotenv.Load()
+	fmt.Println("called: /send-message")
 
 	if r.Method != "POST" {
 		http.Error(w, "invalid method", http.StatusBadRequest)
@@ -34,6 +36,7 @@ func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	// send message to slack (#message-from-mewmew)
 	webhook_url := os.Getenv("WEBHOOK_URL_MESSAGE_FROM_MEWMEW")
+	fmt.Println(webhook_url)
 
 	// build message body
 	body, err := json.Marshal(jsonBody)
