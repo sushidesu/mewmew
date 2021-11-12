@@ -5,14 +5,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/sushidesu/mewmew/lib/circle"
 )
 
 type MewMewRequest struct {
 	Message string `json:"message"`
+	Circle  string `json:"circle"`
 }
 
 func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
@@ -43,6 +46,16 @@ func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 	// validate
 	if jsonBody.Message == "" {
 		http.Error(w, "message is required", http.StatusBadRequest)
+		return
+	}
+	if jsonBody.Circle == "" {
+		http.Error(w, "circle is required", http.StatusBadRequest)
+		return
+	}
+	// validate circle
+	_, err = circle.IsCircle(jsonBody.Circle, log.Printf)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
