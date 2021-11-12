@@ -11,6 +11,11 @@ type Point struct {
 	Distance float64
 }
 
+type Pt struct {
+	X int
+	Y int
+}
+
 type Dots struct {
 	Points      []Point
 	numOfPoints int
@@ -50,40 +55,51 @@ func (d *Dots) PointCentroid() Point {
 	return d.pointCentroid
 }
 
-func CreateDots(img image.Image) *Dots {
+func GetPtsFromImage(img image.Image) []Pt {
 	bounds := img.Bounds()
 
-	// points
-	points := make([]Point, 0)
+	pts := make([]Pt, 0)
 	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
 		for x := bounds.Min.X; x < bounds.Max.X; x++ {
 			pixel := img.At(x, y)
 			_, _, _, a := pixel.RGBA()
 			if a != 0 {
-				points = append(points, Point{X: x, Y: y})
+				pts = append(pts, Pt{X: x, Y: y})
 			}
 		}
 	}
-	numOfPoints := len(points)
+	return pts
+}
+
+func CreateDots(pts []Pt) *Dots {
+	// points
+	numOfPoints := len(pts)
+	points := make([]Point, numOfPoints)
+	for i, p := range pts {
+		points[i] = Point{
+			X: p.X,
+			Y: p.Y,
+		}
+	}
 
 	// centroid
 	xg := 0
 	yg := 0
-	for _, p := range points {
+	for _, p := range pts {
 		xg += p.X
 		yg += p.Y
 	}
 	centerX := xg / numOfPoints
 	centerY := yg / numOfPoints
-	pointCentroid := Point{X: centerX, Y: centerY}
+	pointCentroid := Point{X: centerX, Y: centerY, Distance: 0}
 
 	// distances from centroid
 	var sum_d float64 = 0
 	var minD float64 = math.MaxFloat64
 	var maxD float64 = 0
-	for _, p := range points {
+	for i, p := range points {
 		d := distanceBetween(pointCentroid, p)
-		p.Distance = d
+		points[i].Distance = d
 		sum_d += d
 		minD = math.Min(minD, float64(d))
 		maxD = math.Max(maxD, float64(d))
