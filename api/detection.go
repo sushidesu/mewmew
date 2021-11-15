@@ -1,14 +1,11 @@
 package handler
 
 import (
-	"bytes"
-	"encoding/base64"
 	"encoding/json"
-	"image"
-	"image/png"
 	"net/http"
 
 	"github.com/sushidesu/mewmew/lib/circle"
+	"github.com/sushidesu/mewmew/lib/util"
 )
 
 type DetectionRequest struct {
@@ -46,12 +43,7 @@ func DetectionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get dots
-	b, err := base64.StdEncoding.DecodeString(jsonBody.Image)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	img, _, err := image.Decode(bytes.NewReader(b))
+	img, err := util.ConvertBase64ToImage(jsonBody.Image)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -61,13 +53,11 @@ func DetectionHandler(w http.ResponseWriter, r *http.Request) {
 	// response
 	bounds := img.Bounds()
 	result := circle.ShowCircle(*dots, bounds)
-	var buf bytes.Buffer
-	err = png.Encode(&buf, result)
+	str, err := util.ConvertImageToBase64(result)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	str := base64.StdEncoding.EncodeToString(buf.Bytes())
 	w.Write([]byte("data:image/png;base64," + str))
 }
