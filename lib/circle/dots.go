@@ -6,14 +6,12 @@ import (
 )
 
 type Point struct {
-	X        int
-	Y        int
+	X, Y     int
 	Distance float64
 }
 
 type Pt struct {
-	X int
-	Y int
+	X, Y int
 }
 
 type Dots struct {
@@ -22,8 +20,8 @@ type Dots struct {
 
 	sumOfDistances float64
 
-	pointsMax     []Point
 	pointsMin     []Point
+	pointsMax     []Point
 	pointCentroid Point
 }
 
