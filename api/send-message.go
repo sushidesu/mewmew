@@ -11,6 +11,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/sushidesu/mewmew/lib/circle"
+	"github.com/sushidesu/mewmew/lib/util"
 )
 
 type MewMewRequest struct {
@@ -52,8 +53,13 @@ func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "circle is required", http.StatusBadRequest)
 		return
 	}
+
 	// validate circle
-	_, err = circle.IsCircle(jsonBody.Circle, log.Printf)
+	img, err := util.ConvertBase64ToImage(jsonBody.Circle)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+	_, err = circle.IsCircle(img, log.Printf)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
