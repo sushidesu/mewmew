@@ -26,7 +26,7 @@ func ShowCircle(dots Dots, rectangle image.Rectangle) *image.RGBA {
 			R: 0,
 			G: 255,
 			B: 0,
-			A: 0,
+			A: 255,
 		})
 	}
 
@@ -36,7 +36,7 @@ func ShowCircle(dots Dots, rectangle image.Rectangle) *image.RGBA {
 			R: 255,
 			G: 0,
 			B: 0,
-			A: 0,
+			A: 255,
 		})
 	}
 
@@ -46,7 +46,7 @@ func ShowCircle(dots Dots, rectangle image.Rectangle) *image.RGBA {
 		R: 0,
 		G: 0,
 		B: 255,
-		A: 0,
+		A: 255,
 	})
 
 	return img
