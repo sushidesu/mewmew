@@ -2,14 +2,22 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/sushidesu/mewmew/lib/circle"
 	"github.com/sushidesu/mewmew/lib/util"
 )
 
-type DetectionRequest struct {
+type detectionRequest struct {
 	Image string `json:"image"`
+}
+
+func (r *detectionRequest) validate() error {
+	if r.Image == "" {
+		return errors.New("image is required")
+	}
+	return nil
 }
 
 func DetectionHandler(w http.ResponseWriter, r *http.Request) {
@@ -30,15 +38,16 @@ func DetectionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// parse json
-	var jsonBody DetectionRequest
+	defer r.Body.Close()
+	var jsonBody detectionRequest
 	err := json.NewDecoder(r.Body).Decode(&jsonBody)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	// validate
-	if jsonBody.Image == "" {
-		http.Error(w, "image is required", http.StatusBadRequest)
+	if err = jsonBody.validate(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
