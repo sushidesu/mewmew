@@ -51,16 +51,23 @@ func DetectionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// get dots
+	// decode image
 	img, err := util.ConvertBase64ToImage(jsonBody.Image)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	// validate image size
+	bounds := img.Bounds()
+	if bounds.Max.X > 500 || bounds.Max.Y > 500 {
+		http.Error(w, "image size is too large", http.StatusBadRequest)
+		return
+	}
+	// get dots
 	dots := circle.CreateDots(circle.GetPtsFromImage(img))
 
 	// response
-	bounds := img.Bounds()
 	result := circle.ShowCircle(*dots, bounds)
 	str, err := util.ConvertImageToBase64(result)
 	if err != nil {
