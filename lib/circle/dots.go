@@ -1,6 +1,7 @@
 package circle
 
 import (
+	"errors"
 	"image"
 	"math"
 )
@@ -69,7 +70,12 @@ func GetPtsFromImage(img image.Image) []Pt {
 	return pts
 }
 
-func CreateDots(pts []Pt) *Dots {
+func CreateDots(pts []Pt) (*Dots, error) {
+	// validate
+	if len(pts) < 0 {
+		return nil, errors.New("no points detected")
+	}
+
 	// points
 	numOfPoints := len(pts)
 	points := make([]Point, numOfPoints)
@@ -124,7 +130,7 @@ func CreateDots(pts []Pt) *Dots {
 		pointsMin:     pointsMin,
 		pointsMax:     pointsMax,
 		pointCentroid: pointCentroid,
-	}
+	}, nil
 }
 
 func distanceBetween(a Point, b Point) float64 {

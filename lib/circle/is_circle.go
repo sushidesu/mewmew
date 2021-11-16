@@ -7,7 +7,10 @@ import (
 
 func IsCircle(img image.Image, log func(format string, args ...interface{})) (bool, error) {
 	pts := GetPtsFromImage(img)
-	dots := CreateDots(pts)
+	dots, err := CreateDots(pts)
+	if err != nil {
+		return false, err
+	}
 
 	avg := dots.DistanceAvarage()
 	variance := dots.DistanceVariance()

@@ -72,7 +72,11 @@ func DetectionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// get dots
-	dots := circle.CreateDots(circle.GetPtsFromImage(img))
+	dots, err := circle.CreateDots(circle.GetPtsFromImage(img))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	// visualize
 	result := circle.ShowCircle(*dots, bounds)

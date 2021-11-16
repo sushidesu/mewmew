@@ -19,7 +19,7 @@ func genPts() []circle.Pt {
 }
 
 func TestDots_DistanceAvarage(t *testing.T) {
-	dots := circle.CreateDots(genPts())
+	dots, _ := circle.CreateDots(genPts())
 
 	actual := dots.DistanceAvarage()
 	if actual != 3 {
@@ -28,7 +28,7 @@ func TestDots_DistanceAvarage(t *testing.T) {
 }
 
 func TestDots_Centroid(t *testing.T) {
-	dots := circle.CreateDots(genPts())
+	dots, _ := circle.CreateDots(genPts())
 
 	actual := dots.PointCentroid()
 	if actual.X != 3 || actual.Y != 3 || actual.Distance != 0 {
@@ -38,7 +38,7 @@ func TestDots_Centroid(t *testing.T) {
 }
 
 func TestDots_Min(t *testing.T) {
-	dots := circle.CreateDots([]circle.Pt{
+	dots, _ := circle.CreateDots([]circle.Pt{
 		{X: 3, Y: 0},
 		{X: 6, Y: 3},
 		{X: 3, Y: 6},
