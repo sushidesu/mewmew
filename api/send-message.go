@@ -3,16 +3,31 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/sushidesu/mewmew/lib/circle"
+	"github.com/sushidesu/mewmew/lib/util"
 )
 
-type MewMewRequest struct {
+type sendMessageRequest struct {
 	Message string `json:"message"`
+	Circle  string `json:"circle"`
+}
+
+func (r *sendMessageRequest) validate() error {
+	if r.Message == "" {
+		return errors.New("message is required")
+	}
+	if r.Circle == "" {
+		return errors.New("circle is required")
+	}
+	return nil
 }
 
 func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
@@ -34,15 +49,34 @@ func SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var jsonBody MewMewRequest
+	defer r.Body.Close()
+	var jsonBody sendMessageRequest
 	err := json.NewDecoder(r.Body).Decode(&jsonBody)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	// validate
-	if jsonBody.Message == "" {
-		http.Error(w, "message is required", http.StatusBadRequest)
+	if err = jsonBody.validate(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// decode image
+	img, err := util.ConvertBase64ToImage(jsonBody.Circle)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+	// validate image size
+	if bounds := img.Bounds(); bounds.Max.X > 500 || bounds.Max.Y > 500 {
+		http.Error(w, "image size is too large", http.StatusBadRequest)
+		return
+	}
+
+	// validate circle
+	_, err = circle.IsCircle(img, log.Printf)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
