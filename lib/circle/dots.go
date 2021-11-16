@@ -72,7 +72,7 @@ func GetPtsFromImage(img image.Image) []Pt {
 
 func CreateDots(pts []Pt) (*Dots, error) {
 	// validate
-	if len(pts) < 0 {
+	if len(pts) == 0 {
 		return nil, errors.New("no points detected")
 	}
 
