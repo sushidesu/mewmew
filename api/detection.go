@@ -13,6 +13,13 @@ type detectionRequest struct {
 	Image string `json:"image"`
 }
 
+type detectionResponse struct {
+	Result   string  `json:"result"`
+	Variance float64 `json:"variance"`
+	Sd       float64 `json:"sd"`
+	Average  float64 `json:"average"`
+}
+
 func (r *detectionRequest) validate() error {
 	if r.Image == "" {
 		return errors.New("image is required")
@@ -67,7 +74,7 @@ func DetectionHandler(w http.ResponseWriter, r *http.Request) {
 	// get dots
 	dots := circle.CreateDots(circle.GetPtsFromImage(img))
 
-	// response
+	// visualize
 	result := circle.ShowCircle(*dots, bounds)
 	str, err := util.ConvertImageToBase64(result)
 	if err != nil {
@@ -75,5 +82,13 @@ func DetectionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("data:image/png;base64," + str))
+	// response
+	response := detectionResponse{
+		Result:   str,
+		Variance: dots.DistanceVariance(),
+		Sd:       dots.DistanceSTD(),
+		Average:  dots.DistanceAvarage(),
+	}
+
+	json.NewEncoder(w).Encode(response)
 }
